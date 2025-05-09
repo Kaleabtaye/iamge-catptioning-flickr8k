@@ -2,6 +2,7 @@ import os
 import re
 import numpy as np
 import tensorflow as tf
+import pickle
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_input
@@ -38,27 +39,34 @@ def load_and_preprocess_image(image_path, target_size=(299, 299)):
     image = preprocess_input(image)
     return image
 
-def prepare_dataset(images_dir, caption_path):
+def prepare_dataset(feature_path, caption_path):
+    # Load pre-extracted image features
+    with open(feature_path, 'rb') as f:
+        image_features = pickle.load(f)
+
+    # Load captions and build tokenizer
     caption_map = load_captions(caption_path)
     tokenizer = fit_tokenizer(caption_map)
 
     img_ids = list(caption_map.keys())
-    images = []
+    features = []
     caption_seqs = []
-    
+
     for img_id in img_ids:
-        img_path = os.path.join(images_dir, img_id)
-        if not os.paths.exists(img_path):
+        if img_id not in image_features:
             continue
-        image = load_and_preprocess_image(img_path)
+        feature = image_features[img_id]
         captions = caption_map[img_id]
 
         for cap in captions:
             seq = tokenizer.texts_to_sequences([cap])[0]
             caption_seqs.append(seq)
-            images.append(image[0])
-    images = np.array(images)
+            features.append(feature)  # No duplication of large image data
+
+    # Pad caption sequences
     caption_seqs = pad_sequences(caption_seqs, padding='post')
-    return images, caption_seqs, tokenizer
+    features = np.array(features)
+
+    return features, caption_seqs, tokenizer
 
 
