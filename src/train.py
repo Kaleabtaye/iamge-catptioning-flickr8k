@@ -10,7 +10,7 @@ features, captions, tokenizer = prepare_dataset(feature_path, caption_path)
 
 vocab_size = len(tokenizer.word_index) + 1
 embedding_dim = 256
-units = 512
+units = 256
 batch_size = 64
 epochs = 10
 
@@ -18,7 +18,7 @@ dataset = tf.data.Dataset.from_tensor_slices((features, captions))
 dataset = dataset.shuffle(buffer_size=1000).batch(batch_size)
 
 model = ImageCaptioningModel(vocab_size, embedding_dim, units)
-optimizer = tf.keras.optimidamers.Adam()
+optimizer = tf.keras.optimizers.Adam()
 loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True, reduction='none')
 
 def loss_function(real, pred):
