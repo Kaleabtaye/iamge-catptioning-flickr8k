@@ -36,6 +36,7 @@ def train_step(img_tensor, target):
 
     with tf.GradientTape() as tape:
         predictions = model([img_tensor, decoder_input])
+        predictions = predictions[:, 1:, :]
         loss = loss_function(real_output, predictions)
 
     gradients = tape.gradient(loss, model.trainable_variables)
@@ -55,4 +56,4 @@ for epoch in range(epochs):
     print(f'Epoch {epoch + 1} Loss {total_loss / (batch + 1):.4f}')
 
 # Save model weights
-model.save_weights('./saved_models/image_captioning_model.h5')
+model.save_weights('./saved_models/image_captioning_model.weights.h5')
