@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  trainer:
+    build: .
+    container_name: image_captioning_trainer
+    volumes:
+      - ./data:/app/data
+      - ./saved_models:/app/saved_models
+    command: ["python", "src/train.py"]
+
+  evaluator:
+    build: .
+    container_name: image_captioning_evaluator
+    volumes:
+      - ./data:/app/data
+      - ./saved_models:/app/saved_models
+    command: ["python", "src/evaluate.py"]
